@@ -1,0 +1,49 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #007AFF;
+  --color-primary-container: #007AFF;
+  --color-on-primary-container: #ffffff;
+  --color-primary-fixed: #E5E5EA;
+  --color-on-primary-fixed: #007AFF;
+  
+  --color-secondary: #8E8E93;
+  --color-secondary-container: #E5E5EA;
+  --color-on-secondary-container: #1C1C1E;
+  
+  --color-tertiary: #248A3D;
+  --color-tertiary-container: #E9FBE9;
+  --color-tertiary-fixed: #E9FBE9;
+  
+  --color-error: #FF3B30;
+  --color-error-container: #FFF5F5;
+  --color-on-error-container: #FF3B30;
+  
+  --color-surface: #F2F2F7;
+  --color-surface-container-lowest: #FFFFFF;
+  --color-surface-container-low: #F2F2F7;
+  --color-surface-container: #E5E5EA;
+  --color-surface-container-high: #D1D1D6;
+  
+  --color-on-surface: #1C1C1E;
+  --color-on-surface-variant: #8E8E93;
+  
+  --color-outline: #D1D1D6;
+  --color-outline-variant: #E5E5EA;
+
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  @apply bg-[#F2F2F7] text-[#1C1C1E] antialiased;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
