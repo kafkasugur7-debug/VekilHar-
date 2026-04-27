@@ -1,26 +1,32 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, type FormEvent } from 'react';
+import { format } from 'date-fns';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useStore } from '../store/useStore';
 import { TransactionType } from '../types';
 import { ArrowLeft, Save, Plus, Trash2, X } from 'lucide-react';
 
 export default function AddTransaction() {
   const navigate = useNavigate();
+  const { transactionId } = useParams();
+  const isEditMode = Boolean(transactionId);
+  const transactions = useStore(state => state.transactions);
   const addTransaction = useStore(state => state.addTransaction);
+  const updateTransaction = useStore(state => state.updateTransaction);
   const people = useStore(state => state.people);
   const categories = useStore(state => state.categories);
   const addCategory = useStore(state => state.addCategory);
   const deleteCategory = useStore(state => state.deleteCategory);
+  const transactionToEdit = transactionId ? transactions.find(transaction => transaction.id === transactionId) : undefined;
 
-  const [type, setType] = useState<TransactionType>('income');
+  const [type, setType] = useState<TransactionType>(transactionToEdit?.type ?? 'income');
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
-  const [amount, setAmount] = useState('');
-  const [title, setTitle] = useState('');
-  const [personId, setPersonId] = useState('');
-  const [category, setCategory] = useState('');
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-  const [note, setNote] = useState('');
+  const [amount, setAmount] = useState(transactionToEdit ? String(transactionToEdit.amount) : '');
+  const [title, setTitle] = useState(transactionToEdit?.title ?? '');
+  const [personId, setPersonId] = useState(transactionToEdit?.personId ?? '');
+  const [category, setCategory] = useState(transactionToEdit?.category ?? '');
+  const [date, setDate] = useState(transactionToEdit?.date ?? format(new Date(), 'yyyy-MM-dd'));
+  const [note, setNote] = useState(transactionToEdit?.note ?? '');
 
   const typeLabels: Record<TransactionType, string> = {
     income: 'Gelen Para',
@@ -38,19 +44,23 @@ export default function AddTransaction() {
 
   const handleDeleteCategory = (id: string) => {
     if (window.confirm("Kategoriyi silmek istediğinize emin misiniz?")) {
-      deleteCategory(id);
+      const deleted = deleteCategory(id);
+      if (!deleted) {
+        alert("Bu kategori işlemlerde kullanıldığı için silinemez.");
+        return;
+      }
       if (category === id) setCategory('');
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!amount || Number(amount) <= 0 || !title || !category || !date) {
       alert("Lütfen gerekli alanları doldurun.");
       return;
     }
 
-    addTransaction({
+    const transactionPayload = {
       type,
       amount: Number(amount),
       title,
@@ -58,10 +68,42 @@ export default function AddTransaction() {
       personId: personId || undefined,
       date,
       note: note || undefined
-    });
+    };
+
+    if (isEditMode && transactionId) {
+      updateTransaction(transactionId, transactionPayload);
+      navigate('/transactions');
+      return;
+    }
+
+    addTransaction(transactionPayload);
 
     navigate('/'); // go to home after adding
   };
+
+  if (isEditMode && !transactionToEdit) {
+    return (
+      <div className="pt-2 pb-6 px-4">
+        <header className="flex items-center gap-3 py-4 mb-2">
+          <button onClick={() => navigate(-1)} className="p-2 -ml-2 rounded-full hover:bg-slate-100 text-slate-600 transition-colors">
+            <ArrowLeft size={24} />
+          </button>
+          <h1 className="text-xl font-display font-semibold text-primary">İşlem Bulunamadı</h1>
+        </header>
+
+        <div className="bg-white border border-outline-variant rounded-[24px] p-6 shadow-sm text-center">
+          <p className="text-sm text-secondary mb-4">Düzenlemek istediğiniz işlem bulunamadı.</p>
+          <button
+            type="button"
+            onClick={() => navigate('/transactions')}
+            className="w-full py-3 bg-primary text-on-primary font-bold rounded-[16px] active:scale-[0.98] transition-transform"
+          >
+            İşlemlere Dön
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="pt-2 pb-6 px-4">
@@ -70,7 +112,7 @@ export default function AddTransaction() {
         <button onClick={() => navigate(-1)} className="p-2 -ml-2 rounded-full hover:bg-slate-100 text-slate-600 transition-colors">
           <ArrowLeft size={24} />
         </button>
-        <h1 className="text-xl font-display font-semibold text-primary">Yeni İşlem</h1>
+        <h1 className="text-xl font-display font-semibold text-primary">{isEditMode ? 'İşlem Düzenle' : 'Yeni İşlem'}</h1>
       </header>
 
       {/* Type Tabs */}
@@ -194,7 +236,7 @@ export default function AddTransaction() {
           className="w-full py-4 bg-primary text-on-primary font-bold rounded-[16px] flex items-center justify-center gap-2 active:scale-[0.98] transition-transform shadow-lg shadow-primary/20"
         >
           <Save size={20} />
-          Kaydet
+          {isEditMode ? 'Değişiklikleri Kaydet' : 'Kaydet'}
         </button>
       </form>
 

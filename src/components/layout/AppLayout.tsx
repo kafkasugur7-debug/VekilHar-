@@ -5,7 +5,7 @@ export default function AppLayout() {
   const location = useLocation();
   // We can hide bottom nav on some specific pages if needed, e.g., /add
   // But the design shows it almost everywhere, though for forms it might get covered by keyboard.
-  const isAddPage = location.pathname === '/add';
+  const isTransactionFormPage = location.pathname === '/add' || /^\/transactions\/[^/]+\/edit$/.test(location.pathname);
 
   return (
     <div className="bg-[#F2F2F7] min-h-screen text-[#1C1C1E] font-sans flex items-center justify-center sm:py-8">
@@ -16,7 +16,7 @@ export default function AppLayout() {
         </div>
         
         {/* Bottom Navigation */}
-        {!isAddPage && <BottomNav />}
+        {!isTransactionFormPage && <BottomNav />}
       </div>
     </div>
   );

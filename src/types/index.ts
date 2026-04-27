@@ -27,6 +27,14 @@ export interface Category {
   type: TransactionType;
 }
 
+export interface AppBackupData {
+  transactions: Transaction[];
+  people: Person[];
+  categories: Category[];
+  currency: string;
+  userName: string;
+}
+
 export interface StoreState {
   transactions: Transaction[];
   people: Person[];
@@ -37,12 +45,12 @@ export interface StoreState {
   // Actions
   updateUserName: (name: string) => void;
   addTransaction: (t: Omit<Transaction, "id" | "createdAt">) => void;
-  updateTransaction: (id: string, t: Partial<Omit<Transaction, "id" | "createdAt">>) => void;
+  updateTransaction: (id: string, t: Omit<Transaction, "id" | "createdAt">) => void;
   deleteTransaction: (id: string) => void;
   addPerson: (p: Omit<Person, "id" | "createdAt">) => void;
-  deletePerson: (id: string) => void;
+  deletePerson: (id: string) => boolean;
   addCategory: (c: Omit<Category, "id">) => void;
-  deleteCategory: (id: string) => void;
+  deleteCategory: (id: string) => boolean;
   resetAllData: () => void;
-  importData: (jsonData: string) => void;
+  importData: (jsonData: string) => boolean;
 }

@@ -1,6 +1,6 @@
 {
-  "name": "Remix: VekilHarç",
-  "description": "",
+  "name": "VekilHarç",
+  "description": "Local-first finans ve kasa takip uygulaması",
   "requestFramePermissions": [],
   "majorCapabilities": []
 }

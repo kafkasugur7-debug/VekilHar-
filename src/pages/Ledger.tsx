@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type FormEvent } from 'react';
 import { useStore } from '../store/useStore';
 import { formatMoney, getPersonSummary } from '../utils/finance';
 import { Search, UserPlus, Building, User, Trash2, X, Plus } from 'lucide-react';
@@ -24,11 +24,14 @@ export default function Ledger() {
 
   const handleDelete = (id: string, name: string) => {
     if (window.confirm(`${name} silinecek. Emin misiniz?`)) {
-      deletePerson(id);
+      const deleted = deletePerson(id);
+      if (!deleted) {
+        alert("Bu kişi veya kurum mevcut işlemlerde kullanıldığı için silinemez.");
+      }
     }
   };
 
-  const handleAddSubmit = (e: React.FormEvent) => {
+  const handleAddSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!newName.trim()) return;
     

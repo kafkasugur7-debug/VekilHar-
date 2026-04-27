@@ -1,7 +1,8 @@
 import { useStore } from '../store/useStore';
 import { Download, Upload, AlertCircle, Trash2, FileSpreadsheet } from 'lucide-react';
-import React, { useRef } from 'react';
-import { downloadExcel } from '../utils/excel';
+import { useRef, type ChangeEvent } from 'react';
+import { AppBackupData } from '../types';
+import { downloadSpreadsheetCsv } from '../utils/spreadsheet';
 
 export default function Settings() {
   const resetAllData = useStore(state => state.resetAllData);
@@ -12,18 +13,19 @@ export default function Settings() {
   const transactions = useStore(state => state.transactions);
   const people = useStore(state => state.people);
   const categories = useStore(state => state.categories);
+  const currency = useStore(state => state.currency);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleReset = () => {
     if (window.confirm("Tüm veri silinecek. Emin misiniz?")) {
       resetAllData();
-      alert("Tüm veriler başarıyla silindi.");
+      alert("Uygulama temiz başlangıç durumuna döndürüldü.");
     }
   };
 
   const handleExportData = () => {
-    const dataObj = { transactions, people, categories };
+    const dataObj: AppBackupData = { transactions, people, categories, currency, userName };
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataObj));
     const downloadAnchorNode = document.createElement('a');
     downloadAnchorNode.setAttribute("href",     dataStr);
@@ -33,25 +35,27 @@ export default function Settings() {
     downloadAnchorNode.remove();
   };
 
-  const handleExportExcel = () => {
+  const handleExportSpreadsheet = () => {
     try {
-      downloadExcel(transactions, people, categories);
+      downloadSpreadsheetCsv({ transactions, people, categories, currency, userName });
     } catch (error) {
       console.error(error);
-      alert("Excel dosyası oluşturulurken hata oluştu.");
+      alert("CSV dosyası oluşturulurken hata oluştu.");
     }
   };
 
-  const handleImportData = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImportData = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (window.confirm("İçe aktarılan veriler mevcut verilerinizin üzerine yazılacak veya eklenecektir (mevcut duruma göre). Devam edilsin mi?")) {
+    if (window.confirm("İçe aktarılan yedek mevcut verilerinizin yerine geçecek. Devam edilsin mi?")) {
       const reader = new FileReader();
       reader.onload = (evt) => {
         const result = evt.target?.result as string;
-        importData(result);
-        alert("Eski veriler başarıyla yüklendi.");
+        const imported = importData(result);
+        if (imported) {
+          alert("Yedek başarıyla yüklendi.");
+        }
         if(fileInputRef.current) fileInputRef.current.value = '';
       };
       reader.readAsText(file);
@@ -86,7 +90,7 @@ export default function Settings() {
 
           <div className="space-y-3">
             <button 
-              onClick={handleExportExcel}
+              onClick={handleExportSpreadsheet}
               className="w-full flex items-center justify-between p-4 rounded-[16px] bg-[#E9FBE9] hover:bg-[#D4F6D4] transition-colors"
             >
               <div className="flex items-center gap-3">
@@ -94,8 +98,8 @@ export default function Settings() {
                   <FileSpreadsheet size={20} />
                 </div>
                 <div className="text-left">
-                  <p className="font-semibold text-tertiary text-sm">Excel (XLSX) İndir</p>
-                  <p className="text-xs text-tertiary/80 mt-0.5">Tüm verilerinizi tablo olarak bilgisayarınıza indirin</p>
+                  <p className="font-semibold text-tertiary text-sm">CSV İndir</p>
+                  <p className="text-xs text-tertiary/80 mt-0.5">Excel'in açabildiği tablo yedeğini cihazınıza indirin</p>
                 </div>
               </div>
             </button>
@@ -165,7 +169,7 @@ export default function Settings() {
             <h4 className="font-semibold text-sm">VekilHarç</h4>
             <p className="text-xs text-secondary mt-0.5">v1.0.0 • Prototype MVP</p>
             <p className="text-[10px] text-secondary mt-1">Geliştirici: Cepera Yazılım ve Veri Madenciliği</p>
-            <p className="text-[10px] text-secondary mt-0.5">Veriler sadece tarayıcınızda (localStorage) tutulmaktadır.</p>
+            <p className="text-[10px] text-secondary mt-0.5">Veriler cihazınızda tutulur; harici API veya bulut senkronizasyonu yoktur.</p>
           </div>
         </section>
       </div>

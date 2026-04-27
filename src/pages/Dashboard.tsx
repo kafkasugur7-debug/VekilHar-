@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useStore } from '../store/useStore';
 import { formatMoney, getCumulativeBalance, getMonthlyExpense, getMonthlyIncome, getMonthlyNet, getTransactionsByMonth } from '../utils/finance';
-import { ChevronLeft, ChevronRight, TrendingUp } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { isSameMonth, subMonths, addMonths, format } from 'date-fns';
 import { tr } from 'date-fns/locale';
 

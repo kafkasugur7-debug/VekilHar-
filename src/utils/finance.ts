@@ -53,11 +53,11 @@ export function getCumulativeBalance(transactions: Transaction[], upToDate: Date
 
 export function getPersonSummary(transactions: Transaction[], personId: string) {
   const personTxs = transactions.filter(t => t.personId === personId);
-  
+
   const incoming = personTxs.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
   const outgoing = personTxs.filter(t => t.type !== 'income').reduce((sum, t) => sum + t.amount, 0);
-  const lastTransaction = personTxs.length > 0 
-    ? personTxs.sort((a, b) => b.date.localeCompare(a.date))[0] 
+  const lastTransaction = personTxs.length > 0
+    ? [...personTxs].sort((a, b) => b.date.localeCompare(a.date))[0]
     : null;
 
   return { incoming, outgoing, net: incoming - outgoing, lastTransaction };
